@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'icon-authentication',
@@ -7,9 +9,47 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AuthenticationComponent implements OnInit {
 
-  constructor() { }
+  isAuthenticated = false;
+  welcomeMessage = '';
+  jbbToken = null;
+  JBB_TOKEN_NAME = 'jbb-token';
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
+    this.refreshFlags();
+  }
+
+  refreshFlags() {
+    if(this.authService.userIsLoggedIn()) {
+      this.isAuthenticated = true;
+      this.welcomeMessage = 'Bienvenue';
+      const jbbToken = JSON.parse(localStorage.getItem(this.JBB_TOKEN_NAME));
+    }
+  }
+
+
+  login(credentials) {
+    this.authService.login(credentials)
+      .subscribe(
+        data => {
+        this.handleLoginSuccess(data)
+      },
+        error => {
+        this.handleLoginFailure(error)
+      }
+    )
+  }
+
+  handleLoginSuccess(data) {
+    console.log('success: ', data);
+    this.jbbToken = data;
+    localStorage.setItem(this.JBB_TOKEN_NAME, JSON.stringify(data));
+    this.router.navigate(['/profile']);
+  }
+
+  handleLoginFailure(error) {
+    console.error('failure: ', error);
   }
 
 }

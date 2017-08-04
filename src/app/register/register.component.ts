@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService} from '../services/auth.service';
 
 @Component({
   selector: 'icon-register',
@@ -7,9 +9,31 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RegisterComponent implements OnInit {
 
-  constructor() { }
+  constructor(private authService:AuthService, private router:Router) { }
 
   ngOnInit() {
   }
 
+  register(formData) {
+    this.authService.register(formData)
+      .subscribe(
+        data => {
+        this.handleRegisterSuccess(data)
+      },
+        error => {
+        this.handleRegisterFailure(error)
+      }
+    )
+  }
+
+  handleRegisterSuccess(data) {
+    // console.log('success: ', data);
+    this.router.navigate(['/']);
+  }
+
+  handleRegisterFailure(error) {
+    console.error('failure: ', error);
+  }
+
 }
+
